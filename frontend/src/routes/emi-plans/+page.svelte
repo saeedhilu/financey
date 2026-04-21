@@ -11,6 +11,7 @@
     let newName = $state('');
     let newAmount = $state('');
     let newMonths = $state('');
+    let newMonthsPaid = $state('');
     let newLiab = $state('');
     let newDeduct = $state('');
     let newDate = $state(new Date().toISOString().split('T')[0]);
@@ -31,6 +32,7 @@
         const payload = { 
             name: newName, 
             total_months: newMonths, 
+            months_paid: newMonthsPaid || 0,
             emi_amount: newAmount, 
             liability_ledger: newLiab, 
             deduct_from_ledger: newDeduct, 
@@ -63,6 +65,7 @@
         newName = plan.name;
         newAmount = plan.emi_amount;
         newMonths = plan.total_months;
+        newMonthsPaid = plan.months_paid;
         newLiab = String(plan.liability_ledger);
         newDeduct = String(plan.deduct_from_ledger);
         newDate = plan.start_date;
@@ -76,6 +79,7 @@
             newName = '';
             newAmount = '';
             newMonths = '';
+            newMonthsPaid = '';
             newLiab = '';
             newDeduct = '';
         }
@@ -118,6 +122,12 @@
                 <label class="block text-sm font-medium text-slate-700 mb-1">Total Duration (Months)</label>
                 <input type="number" required bind:value={newMonths} class="w-full border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500" placeholder="12 or 14">
             </div>
+            {#if editingId}
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Months Paid</label>
+                <input type="number" bind:value={newMonthsPaid} class="w-full border border-rose-300 rounded-lg p-2 outline-none focus:border-rose-500 bg-rose-50 text-rose-700" placeholder="e.g. 5">
+            </div>
+            {/if}
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1">Liability Ledger (Debt Account)</label>
                 <select required bind:value={newLiab} class="w-full border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">

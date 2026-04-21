@@ -1,13 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fetchAPI } from '$lib/api';
-  
+  import { Bar } from 'svelte-chartjs';
+  import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+
+  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
   let totalBalance = $state(0);
   let thisMonthIncome = $state(0);
   let thisMonthExpense = $state(0);
   let savingsGoal = $state(0);
   let currentSavings = $state(0);
   let recentTransactions: any[] = $state([]);
+  let topSpends: any[] = $state([]);
+  let chartData: any = $state({ labels: [], datasets: [] });
   let loading = $state(true);
 
   onMount(async () => {
@@ -17,19 +23,66 @@
         
         const ledgers = await fetchAPI('/ledgers/');
         const ledgerMap = new Map();
-        ledgers.forEach((l: any) => ledgerMap.set(l.id, l.ledger_class));
+        ledgers.forEach((l: any) => ledgerMap.set(l.id, l));
+
+        const monthlyData = new Map();
+        const spendsMap = new Map();
+        const currentMonthStr = new Date().toISOString().substring(0, 7);
+
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const mStr = d.toISOString().substring(0, 7);
+            monthlyData.set(mStr, { income: 0, expense: 0 });
+        }
 
         txData.forEach((t: any) => {
             let amount = parseFloat(t.amount);
-            let cClass = ledgerMap.get(t.credit_ledger);
-            let dClass = ledgerMap.get(t.debit_ledger);
+            let cClass = ledgerMap.get(t.credit_ledger)?.ledger_class;
+            let dClass = ledgerMap.get(t.debit_ledger)?.ledger_class;
+            let month = t.date.substring(0, 7);
 
-            if (cClass === 'INCOME') thisMonthIncome += amount;
-            if (dClass === 'EXPENSE') thisMonthExpense += amount;
+            if (monthlyData.has(month)) {
+                if (cClass === 'INCOME') monthlyData.get(month).income += amount;
+                if (dClass === 'EXPENSE') monthlyData.get(month).expense += amount;
+            }
+
+            if (cClass === 'INCOME' && month === currentMonthStr) thisMonthIncome += amount;
+            if (dClass === 'EXPENSE' && month === currentMonthStr) {
+                thisMonthExpense += amount;
+            }
+            
+            if (dClass === 'EXPENSE') {
+                let lname = ledgerMap.get(t.debit_ledger)?.name || 'Unknown';
+                spendsMap.set(lname, (spendsMap.get(lname) || 0) + amount);
+            }
             
             if (dClass === 'ASSET') totalBalance += amount;
             if (cClass === 'ASSET') totalBalance -= amount;
         });
+
+        topSpends = Array.from(spendsMap.entries())
+            .sort((a, b) => b[1] - a[1]).slice(0, 4)
+            .map(e => ({ name: e[0], amount: e[1] }));
+
+        const labels = Array.from(monthlyData.keys());
+        chartData = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Income',
+                    data: labels.map(k => monthlyData.get(k).income),
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Expenses',
+                    data: labels.map(k => monthlyData.get(k).expense),
+                    backgroundColor: 'rgba(244, 63, 94, 0.7)',
+                    borderRadius: 4
+                }
+            ]
+        };
 
         const goals = await fetchAPI('/goals/');
         if (goals.length > 0) {
@@ -54,9 +107,8 @@
 </div>
 {:else}
 <div class="space-y-8 animate-in fade-in duration-500">
-  <!-- Mobile Horizontal Scroll Container / Desktop Grid -->
-  <div class="flex overflow-x-auto gap-4 md:grid md:grid-cols-3 md:gap-6 pb-2 snap-x hide-scrollbar">
-    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 pb-2">
+    <div class="col-span-2 md:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Total Balance</h3>
         <span class="text-blue-500 bg-blue-50 p-2 rounded-lg">💼</span>
@@ -66,7 +118,7 @@
       </div>
     </div>
     
-    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Monthly Income</h3>
         <span class="text-emerald-500 bg-emerald-50 p-2 rounded-lg">📈</span>
@@ -76,13 +128,22 @@
       </div>
     </div>
     
-    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Monthly Expenses</h3>
         <span class="text-rose-500 bg-rose-50 p-2 rounded-lg">📉</span>
       </div>
       <div>
         <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${thisMonthExpense.toLocaleString()}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-2 hover:shadow-md transition">
+      <h3 class="text-lg font-bold text-slate-800 mb-6">Income vs Expenses (6 Months)</h3>
+      <div class="h-64 w-full">
+        <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
       </div>
     </div>
   </div>
@@ -113,27 +174,48 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-bold text-slate-800">Recent Transactions</h3>
-        <a href="/transactions" class="text-sm text-blue-600 hover:underline">View All</a>
-      </div>
-      <ul class="space-y-2">
-        {#each recentTransactions as tx}
-        <li class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition cursor-pointer">
-          <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">💰</div>
-            <div>
-              <p class="font-semibold text-slate-800 tracking-tight">{tx.notes || 'Transaction'}</p>
-              <p class="text-xs text-slate-500 font-medium">{tx.date}</p>
+    <div class="grid grid-cols-1 gap-6">
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-slate-800">Recent Transactions</h3>
+          <a href="/transactions" class="text-sm text-blue-600 hover:underline">View All</a>
+        </div>
+        <ul class="space-y-4">
+          {#each recentTransactions as tx}
+          <li class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition cursor-pointer">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">💰</div>
+              <div>
+                <p class="font-semibold text-slate-800 tracking-tight">{tx.notes || 'Transaction'}</p>
+                <p class="text-xs text-slate-500 font-medium">{tx.date}</p>
+              </div>
             </div>
+            <span class="font-bold tracking-tight {parseFloat(tx.amount) > 0 ? 'text-emerald-500' : 'text-slate-800'}">{tx.amount}</span>
+          </li>
+          {:else}
+          <p class="text-slate-500 text-sm">No recent transactions to display.</p>
+          {/each}
+        </ul>
+      </div>
+
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-slate-800">Top Spending Categories</h3>
+        </div>
+        <div class="space-y-4">
+          {#each topSpends as spend}
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-700">{spend.name}</span>
+            <span class="text-sm font-bold text-rose-500">${spend.amount.toLocaleString()}</span>
           </div>
-          <span class="font-bold tracking-tight {parseFloat(tx.amount) > 0 ? 'text-emerald-500' : 'text-slate-800'}">{tx.amount}</span>
-        </li>
-        {:else}
-        <p class="text-slate-500 text-sm">No recent transactions to display.</p>
-        {/each}
-      </ul>
+          <div class="w-full bg-slate-100 rounded-full h-1.5 mb-2">
+            <div class="bg-rose-400 h-1.5 rounded-full" style={`width: ${(spend.amount / (topSpends[0]?.amount || 1)) * 100}%`}></div>
+          </div>
+          {:else}
+          <p class="text-slate-500 text-sm">No expenses analyzed yet.</p>
+          {/each}
+        </div>
+      </div>
     </div>
   </div>
 </div>
