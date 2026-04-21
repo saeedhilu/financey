@@ -16,6 +16,10 @@
   let topSpends: any[] = $state([]);
   let chartData: any = $state({ labels: [], datasets: [] });
   let loading = $state(true);
+  
+  // Specific Ledger Tracking
+  let bankBalance = $state(0);
+  let cashBalance = $state(0);
 
   onMount(async () => {
     try {
@@ -63,6 +67,13 @@
             
             if (dClass === 'ENVELOPE') envelopedBalance += amount;
             if (cClass === 'ENVELOPE') envelopedBalance -= amount;
+            
+            // Hardcoded specific ledgers tracking
+            if (Number(t.debit_ledger) === 13) bankBalance += amount;
+            if (Number(t.credit_ledger) === 13) bankBalance -= amount;
+            
+            if (Number(t.debit_ledger) === 12) cashBalance += amount;
+            if (Number(t.credit_ledger) === 12) cashBalance -= amount;
         });
 
         topSpends = Array.from(spendsMap.entries())
@@ -111,7 +122,7 @@
 </div>
 {:else}
 <div class="space-y-8 animate-in fade-in duration-500">
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pb-2">
+  <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-2">
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Available Cash</h3>
@@ -149,6 +160,27 @@
       </div>
       <div>
         <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${thisMonthExpense.toLocaleString()}</p>
+      </div>
+    </div>
+    
+    <!-- Custom Tracking Cards -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Bank Balance</h3>
+        <span class="text-indigo-500 bg-indigo-50 p-2 rounded-lg">🏦</span>
+      </div>
+      <div>
+        <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${bankBalance.toLocaleString()}</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Pocket Cash</h3>
+        <span class="text-emerald-500 bg-emerald-50 p-2 rounded-lg">💵</span>
+      </div>
+      <div>
+        <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${cashBalance.toLocaleString()}</p>
       </div>
     </div>
   </div>
