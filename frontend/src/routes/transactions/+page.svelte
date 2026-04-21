@@ -153,7 +153,7 @@
                 <p class="text-sm text-slate-500">{tx.date}</p>
             </div>
             <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center space-x-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onclick={() => startEdit(tx)} class="text-slate-300 hover:text-blue-500 transition" title="Edit Transaction">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                     </button>

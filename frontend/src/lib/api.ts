@@ -28,5 +28,6 @@ export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
         throw { status: response.status, data: errorData };
     }
 
+    if (response.status === 204) return null;
     return response.json();
 }
