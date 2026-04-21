@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
     import { fetchAPI } from '$lib/api';
     import * as XLSX from 'xlsx';
-    import * as XLSX from 'xlsx';
 
     let ledgers: any[] = $state([]);
     let loading = $state(true);
