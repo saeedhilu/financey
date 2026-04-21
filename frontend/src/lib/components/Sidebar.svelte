@@ -1,7 +1,7 @@
 <script lang="ts">
 </script>
 
-<aside class="w-64 bg-slate-900 text-slate-300 min-h-screen flex flex-col hidden md:flex fixed top-0 left-0">
+<aside class="w-64 bg-slate-900 text-slate-300 h-full flex flex-col">
   <div class="h-16 flex items-center px-6 border-b border-slate-800 text-white font-bold text-2xl tracking-wide">
     <span class="text-blue-500 mr-2">✦</span><span class="text-white">Fin</span><span class="text-slate-400">ancey</span>
   </div>
