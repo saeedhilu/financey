@@ -7,6 +7,7 @@
   ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
   let totalBalance = $state(0);
+  let envelopedBalance = $state(0);
   let thisMonthIncome = $state(0);
   let thisMonthExpense = $state(0);
   let savingsGoal = $state(0);
@@ -59,6 +60,9 @@
             
             if (dClass === 'ASSET') totalBalance += amount;
             if (cClass === 'ASSET') totalBalance -= amount;
+            
+            if (dClass === 'ENVELOPE') envelopedBalance += amount;
+            if (cClass === 'ENVELOPE') envelopedBalance -= amount;
         });
 
         topSpends = Array.from(spendsMap.entries())
@@ -107,14 +111,24 @@
 </div>
 {:else}
 <div class="space-y-8 animate-in fade-in duration-500">
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 pb-2">
-    <div class="col-span-2 md:col-span-1 bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 pb-2">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Total Balance</h3>
+        <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Available Cash</h3>
         <span class="text-blue-500 bg-blue-50 p-2 rounded-lg">💼</span>
       </div>
       <div>
         <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${totalBalance.toLocaleString()}</p>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Reserved (Envelopes)</h3>
+        <span class="text-indigo-500 bg-indigo-50 p-2 rounded-lg">🔒</span>
+      </div>
+      <div>
+        <p class="text-4xl font-extrabold text-slate-800 tracking-tight">${envelopedBalance.toLocaleString()}</p>
       </div>
     </div>
     
