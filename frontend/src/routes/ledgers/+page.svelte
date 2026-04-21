@@ -138,6 +138,7 @@
                     <option value="LIABILITY">Liability (Debt)</option>
                     <option value="INCOME">Income (Salary)</option>
                     <option value="EXPENSE">Expense (Food)</option>
+                    <option value="ENVELOPE">Envelope (Savings)</option>
                 </select>
             </div>
             <div class="flex items-end">
