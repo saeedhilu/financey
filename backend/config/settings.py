@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-5-&pi1+clqgq%ae7_l#w841257faj1!^x6n3_57$ngba^ra!x-'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['financey.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'corsheaders',
