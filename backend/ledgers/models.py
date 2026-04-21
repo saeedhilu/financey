@@ -6,6 +6,7 @@ class LedgerClass(models.TextChoices):
     LIABILITY = 'LIABILITY', 'Liability'
     INCOME = 'INCOME', 'Income'
     EXPENSE = 'EXPENSE', 'Expense'
+    ENVELOPE = 'ENVELOPE', 'Envelope/Pocket'
 
 class Ledger(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='ledgers')
