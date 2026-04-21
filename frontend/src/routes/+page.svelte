@@ -15,15 +15,20 @@
         const txData = await fetchAPI('/transactions/entries/');
         recentTransactions = txData.slice(0, 5);
         
+        const ledgers = await fetchAPI('/ledgers/');
+        const ledgerMap = new Map();
+        ledgers.forEach((l: any) => ledgerMap.set(l.id, l.ledger_class));
+
         txData.forEach((t: any) => {
             let amount = parseFloat(t.amount);
-            if (amount > 0) {
-               thisMonthIncome += amount;
-               totalBalance += amount;
-            } else {
-               thisMonthExpense += Math.abs(amount);
-               totalBalance += amount;
-            }
+            let cClass = ledgerMap.get(t.credit_ledger);
+            let dClass = ledgerMap.get(t.debit_ledger);
+
+            if (cClass === 'INCOME') thisMonthIncome += amount;
+            if (dClass === 'EXPENSE') thisMonthExpense += amount;
+            
+            if (dClass === 'ASSET') totalBalance += amount;
+            if (cClass === 'ASSET') totalBalance -= amount;
         });
 
         const goals = await fetchAPI('/goals/');
@@ -49,8 +54,9 @@
 </div>
 {:else}
 <div class="space-y-8 animate-in fade-in duration-500">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+  <!-- Mobile Horizontal Scroll Container / Desktop Grid -->
+  <div class="flex overflow-x-auto gap-4 md:grid md:grid-cols-3 md:gap-6 pb-2 snap-x hide-scrollbar">
+    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Total Balance</h3>
         <span class="text-blue-500 bg-blue-50 p-2 rounded-lg">💼</span>
@@ -60,7 +66,7 @@
       </div>
     </div>
     
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Monthly Income</h3>
         <span class="text-emerald-500 bg-emerald-50 p-2 rounded-lg">📈</span>
@@ -70,7 +76,7 @@
       </div>
     </div>
     
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+    <div class="min-w-[85vw] md:min-w-0 shrink-0 snap-center bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-slate-500 font-medium tracking-wide text-sm uppercase">Monthly Expenses</h3>
         <span class="text-rose-500 bg-rose-50 p-2 rounded-lg">📉</span>

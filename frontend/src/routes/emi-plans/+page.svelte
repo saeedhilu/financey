@@ -63,8 +63,8 @@
         newName = plan.name;
         newAmount = plan.emi_amount;
         newMonths = plan.total_months;
-        newLiab = plan.liability_ledger;
-        newDeduct = plan.deduct_from_ledger;
+        newLiab = String(plan.liability_ledger);
+        newDeduct = String(plan.deduct_from_ledger);
         newDate = plan.start_date;
         showForm = true;
     }
@@ -123,7 +123,7 @@
                 <select required bind:value={newLiab} class="w-full border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
                     <option value="" disabled selected>Select Liability</option>
                     {#each ledgers.filter(l => l.ledger_class?.toUpperCase() === 'LIABILITY') as ld}
-                    <option value={ld.id}>{ld.name}</option>
+                    <option value={String(ld.id)}>{ld.name}</option>
                     {/each}
                 </select>
             </div>
@@ -132,7 +132,7 @@
                  <select required bind:value={newDeduct} class="w-full border border-slate-300 rounded-lg p-2 outline-none focus:border-indigo-500 bg-white">
                     <option value="" disabled selected>Select Asset</option>
                     {#each ledgers.filter(l => l.ledger_class?.toUpperCase() === 'ASSET') as ld}
-                    <option value={ld.id}>{ld.name}</option>
+                    <option value={String(ld.id)}>{ld.name}</option>
                     {/each}
                 </select>
             </div>
