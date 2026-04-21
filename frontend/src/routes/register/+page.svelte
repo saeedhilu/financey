@@ -1,10 +1,10 @@
 <script lang="ts">
     import { fetchAPI } from '$lib/api';
 
-    let username = '';
-    let password = '';
-    let email = '';
-    let error = '';
+    let username = $state('');
+    let password = $state('');
+    let email = $state('');
+    let error = $state('');
 
     async function handleRegister(e: Event) {
         e.preventDefault();

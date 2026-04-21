@@ -1,9 +1,9 @@
 <script lang="ts">
     import { fetchAPI } from '$lib/api';
 
-    let username = '';
-    let password = '';
-    let error = '';
+    let username = $state('');
+    let password = $state('');
+    let error = $state('');
 
     async function handleLogin(e: Event) {
         e.preventDefault();

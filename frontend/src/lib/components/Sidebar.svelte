@@ -10,6 +10,7 @@
     <a href="/transactions" class="flex px-4 py-3 rounded-lg font-medium transition hover:bg-slate-800 hover:text-white">Transactions</a>
     <a href="/ledgers" class="flex px-4 py-3 rounded-lg font-medium transition hover:bg-slate-800 hover:text-white">Ledgers</a>
     <a href="/goals" class="flex px-4 py-3 rounded-lg font-medium transition hover:bg-slate-800 hover:text-white">Savings Goals</a>
+    <a href="/emi-plans" class="flex px-4 py-3 rounded-lg font-medium transition hover:bg-slate-800 hover:text-white">EMI Plans</a>
     <a href="/reports" class="flex px-4 py-3 rounded-lg font-medium transition hover:bg-slate-800 hover:text-white">Reports</a>
   </nav>
   <div class="p-6 border-t border-slate-800">
