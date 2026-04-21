@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'https://financey.onrender.com/api';
 
 export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
     let token = null;
